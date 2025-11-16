@@ -10,7 +10,7 @@ from tkinter import messagebox
 # ====== Kết nối MySQL (MySQL Connection) ======
 def connect_db():
     """
-        Thiết lập kết nối đến cơ sở dữ liệu QL_DiemSV.
+        Thiết lập kết nối đến cơ sở dữ liệu ql_benhnhan.
     """
     try:
         conn = mysql.connector.connect(
