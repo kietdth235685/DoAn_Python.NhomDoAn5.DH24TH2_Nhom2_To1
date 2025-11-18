@@ -3,7 +3,7 @@ from tkinter import ttk, messagebox
 import mysql.connector
 from tkcalendar import DateEntry
 
-# ===== HÀM KẾT NỐI DATABASE (Đã giữ nguyên) =====
+# ===== HÀM KẾT NỐI DATABASE =====
 def connect_db():
     return mysql.connector.connect(
         host="localhost",
@@ -12,8 +12,7 @@ def connect_db():
         database="ql_benhnhan"
         #hàm này để mở kết nối đến database ql_benhnhan.
     )
-
-# ====== TẠO CỬA SỔ CHÍNH (Đã giữ nguyên) ======
+# ====== TẠO CỬA SỔ CHÍNH ======
 root = tk.Tk()
 root.title("Quản lý bệnh nhân")
 window_width = 700
@@ -24,11 +23,11 @@ screen_height = root.winfo_screenheight()
 x = (screen_width // 2) - (window_width // 2)
 y = (screen_height // 2) - (window_height // 2)
 
-root.geometry(f"{window_width}x{window_height}+{x}+{y}") # 👈 đặt vị trí giữa màn hình
+root.geometry(f"{window_width}x{window_height}+{x}+{y}") # đặt vị trí giữa màn hình
 root.config(bg="#f7f7f7")
 root.resizable(False, False)
 
-# ===== MENU VÀ BIẾN CHUNG (Đã giữ nguyên) =====
+# ===== MENU VÀ BIẾN CHUNG =====
 menu = tk.Menu(root) #Tạo menu để thêm submenu cho chuyển trang.
 root.config(menu=menu)
 
@@ -40,11 +39,11 @@ titles = {
     "thuoc": "DANH SÁCH THUỐC",
     "donthuoc": "CHI TIẾT ĐƠN THUỐC",
 }
-# ===== FONT CHUNG (Đã giữ nguyên) =====
+# ===== FONT CHUNG =====
 title_font = ("Arial", 18, "bold")
 treeviews = {} # Lưu Treeview cho mỗi frame (cần cho load_data)
 
-# --- KHỞI TẠO CÁC HÀM TÁI SỬ DỤNG (PHẦN FORM CHUNG CỦA BẠN ĐÃ ĐƯỢC THAY THẾ BẰNG CÁC HÀM NÀY) ---
+# --- KHỞI TẠO CÁC HÀM TÁI SỬ DỤNG ---
 
 # ===== HÀM TẢI DỮ LIỆU (load_data) =====
 def load_data(table_name, tree):
@@ -60,7 +59,7 @@ def load_data(table_name, tree):
         "donthuoc": "SELECT maHS, mathuoc, soluong, huongdan FROM donthuoc",
     }
     
-    header_map = {
+    header_map = { # là dict ánh xạ tên logical( VD: maBN được viết đầy đủ Mã BN) sang danh sách tiêu đề cột tương ứng.
         "benhnhan": ['Mã BN', 'Họ Tên', 'Ngày Sinh', 'Giới Tính', 'Địa Chỉ', 'SĐT'],
         "hoso": ['Mã HS', 'Mã BN', 'Ngày Khám', 'Chuẩn Đoán', 'Ghi Chú'],
         "thuoc": ['Mã Thuốc', 'Tên Thuốc', 'Đơn Vị Tính', 'Giá (VND)'],
@@ -68,14 +67,14 @@ def load_data(table_name, tree):
     }
     
     try:
-        cursor.execute(query_map[table_name])
-        rows = cursor.fetchall()
-        columns = header_map[table_name]
+        cursor.execute(query_map[table_name])#thực thi câu truy vấn tương ứng với table_name.
+        rows = cursor.fetchall()  #lấy tất cả kết quả trả về.
+        columns = header_map[table_name] #lấy tiêu đề cột từ header_map dựa trên table_name.
         
         tree["columns"] = columns #đặt cấu hình cột cho Treeview.
         tree["displaycolumns"] = columns
         
-        width_map = {
+        width_map = {# độ rộng cố định của các cột theo mỗi bảng
             "benhnhan": (50, 120, 80, 50, 150, 80),
             "hoso": (50, 50, 80, 180, 180),
             "thuoc": (80, 150, 80, 80),
@@ -84,9 +83,8 @@ def load_data(table_name, tree):
         
         for col in columns:
             tree.heading(col, text=col) #đặt tiêu đề hiển thị.
-            col_index = columns.index(col)
-            # Cài đặt độ rộng cố định và căn giữa
-            tree.column(col, width=width_map[table_name][col_index], anchor="center")
+            col_index = columns.index(col)# Cài đặt độ rộng cố định và căn giữa
+            tree.column(col, width=width_map[table_name][col_index], anchor="center")#căn giữa nội dung cột.
 
         for row in rows:
             tree.insert("", "end", values=row) #thêm từng hàng vào Treeview.
@@ -96,13 +94,13 @@ def load_data(table_name, tree):
     conn.close() #đóng kết nối (rất quan trọng để giải phóng tài nguyên). 
 
 # Hàm các chức năng bảng bệnh nhân
-def reset_benhnhan_fields(hoTen_entry, gioiTinh_entry, ngaySinh_entry, diaChi_entry, sdt_entry, tree_benhnhan):
+def reset_benhnhan_fields(hoTen_entry, gioiTinh_entry, ngaySinh_entry, diaChi_entry, sdt_entry, tree_benhnhan):# xóa sạch nội dung của các ô nhập liệu
     hoTen_entry.delete(0, tk.END)
     gioiTinh_entry.set('Nam')
     ngaySinh_entry.set_date(None) 
     diaChi_entry.delete(0, tk.END)
     sdt_entry.delete(0, tk.END)
-    tree_benhnhan.selection_remove(tree_benhnhan.selection())
+    tree_benhnhan.selection_remove(tree_benhnhan.selection())#đảm bảo không có hàng nào được chọn.
     
 def add_benhnhan(hoTen_entry, gioiTinh_entry, ngaySinh_entry, diaChi_entry, sdt_entry, tree_benhnhan):
     try:
@@ -376,14 +374,14 @@ def delete_donthuoc(tree_donthuoc):
     except Exception as e:
         messagebox.showerror("Lỗi", str(e))
 
-# ===== HÀM CHUYỂN FRAME (Đã giữ nguyên) =====
+# ===== HÀM CHUYỂN FRAME =====
 def show_frame(name):
     for f in frames.values():
         f.pack_forget() 
     frames[name].pack(fill="both", expand=True) #làm frame giãn đầy vùng chứa.
 
 
-# ===== TẠO FRAME VÀ CHỨC NĂNG (Đã giữ nguyên cấu trúc vòng lặp) =====
+# ===== TẠO FRAME VÀ CHỨC NĂNG =====
 for t in tables: #Vòng lặp tạo frame cho từng bảng
     frames[t] = tk.Frame(root, bg="#f7f7f7")
     
@@ -392,9 +390,9 @@ for t in tables: #Vòng lặp tạo frame cho từng bảng
         frames[t],
         text=titles[t],
         font=title_font,
-        fg="#333",
-        # Sử dụng bg="#f7f7f7" thay vì "#fff" để đồng nhất với root
-        bg="#f7f7f7"
+        fg="#333",#đặt màu chữ là màu xám
+
+        bg="#f7f7f7"#đặt màu nền giống với nền frame
     )
     title_label.pack(pady=(20, 10))
     
@@ -447,7 +445,7 @@ for t in tables: #Vòng lặp tạo frame cho từng bảng
 
         tree_benhnhan.bind("<ButtonRelease-1>", select_benhnhan_item)
 
-        # --- NÚT CHỨC NĂNG (Đã cập nhật command) ---
+        # --- NÚT CHỨC NĂNG ---
         btn_frame = tk.Frame(frames[t], bg="#f7f7f7")
         btn_frame.pack(pady=2)
 
@@ -571,7 +569,7 @@ for t in tables: #Vòng lặp tạo frame cho từng bảng
 
         tree_thuoc.bind("<ButtonRelease-1>", select_thuoc_item)
         
-        # --- NÚT CHỨC NĂNG (Đã cập nhật command) ---
+        # --- NÚT CHỨC NĂNG ---
         btn_frame = tk.Frame(frames[t], bg="#f7f7f7")
         btn_frame.pack(pady=5)
 
@@ -636,7 +634,7 @@ for t in tables: #Vòng lặp tạo frame cho từng bảng
 
         tree_donthuoc.bind("<ButtonRelease-1>", select_donthuoc_item)
         
-        # --- NÚT CHỨC NĂNG (Đã cập nhật command) ---
+        # --- NÚT CHỨC NĂNG ---
         btn_frame = tk.Frame(frames[t], bg="#f7f7f7")
         btn_frame.pack(pady=5)
 
@@ -655,13 +653,13 @@ for t in tables: #Vòng lặp tạo frame cho từng bảng
                    (maHS_entry, maThuoc_dt_entry, soLuong_entry, huongDan_entry, tree_donthuoc)).pack(side="left", padx=10, pady=5)
         ttk.Button(btn_frame2, text="Thoát", width=18, style="Accent.TButton", command=root.destroy).pack(side="left", padx=10 ,pady=5)
 
-# ===== MENU CHUYỂN TRANG (Đã giữ nguyên) =====
+# ===== MENU CHUYỂN TRANG =====
 submenu = tk.Menu(menu, tearoff=0)
-menu.add_cascade(label=" Trang chính", menu=submenu)
+menu.add_cascade(label=" Trang chính", menu=submenu)# Thêm menu con vào menu chính
 for t in tables:
     submenu.add_command(label=titles[t], command=lambda n=t: show_frame(n))
 
 root.update()
-root.minsize(root.winfo_width(), root.winfo_height())
-show_frame("benhnhan") 
+root.minsize(root.winfo_width(), root.winfo_height())# Đặt kích thước tối thiểu của cửa sổ bằng kích thước hiện tại
+show_frame("benhnhan") #Hiển thị frame bệnh nhân khi khởi động
 root.mainloop()
